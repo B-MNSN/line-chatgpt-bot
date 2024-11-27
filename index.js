@@ -40,7 +40,7 @@ const sendMessageToLine = async (replyToken, message) => {
 const getChatGptResponse = async (userMessage) => {
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/completions',
+      'https://api.openai.com/v1/chat/completions',
       {
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: userMessage }],
@@ -53,9 +53,9 @@ const getChatGptResponse = async (userMessage) => {
         }
       }
     );
-    return response.data.choices[0].message.content;
+    return response.data.choices[0].message.content || response.data.choices[0].text;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('OpenAI Error:', error.response ? error.response.data : error.message);
     return 'Sorry, I am having trouble understanding your request.';
   }
 };
