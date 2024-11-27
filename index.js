@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const OpenAI = require("openai");
 
 require('dotenv').config();
 
@@ -11,10 +10,6 @@ const port = process.env.PORT || 3000;
 // LINE Channel Access Token และ OpenAI API Key
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN || '';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY
-});
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
@@ -39,21 +34,6 @@ const sendMessageToLine = async (replyToken, message) => {
   } catch (error) {
     console.error('Error sending message to LINE:', error);
   }
-};
-
-const openaiRequest = async (message) => {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: message,
-      },
-    ],
-  });
-
-  console.log(JSON.stringify(completion));
-  return completion.choices[0].message.content;
 };
 
 // ฟังก์ชันเรียกใช้ OpenAI API (ChatGPT)
@@ -90,7 +70,7 @@ app.post('/callback', async (req, res) => {
     const userMessage = event.message.text;
 
     // เรียกใช้ OpenAI API เพื่อตอบกลับข้อความ
-    const chatGptResponse = await openaiRequest(userMessage);
+    const chatGptResponse = await getChatGptResponse(userMessage);
 
     // ส่งข้อความกลับไปยัง LINE
     await sendMessageToLine(replyToken, chatGptResponse);
